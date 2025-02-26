@@ -1,0 +1,51 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Параметры
+frequencies = [10e3, 5e3, 2e3]  # Частоты в Гц
+amplitude = 5  # Амплитуда
+duration = 1e-3  # Длительность в секундах (1 мс)
+sampling_interval = 1e-6  # Шаг моделирования в секундах (1 мкс)
+
+# Время
+t = np.arange(0, duration, sampling_interval)
+
+# Создание треугольных сигналов
+signals = []
+for freq in frequencies:
+    signal = amplitude * (2 * (t * freq % 1) - 1)  # Треугольный сигнал
+    signals.append(signal)
+
+# Логический каскад
+output_signal = np.zeros_like(t)
+
+# Условия для логического каскада
+for signal in signals:
+    output_signal = np.where(signal > 4, 5, output_signal)  # Если сигнал > 4, выход 5
+    output_signal = np.where(signal < 2, 0, output_signal)  # Если сигнал < 2, выход 0
+
+# Визуализация
+plt.figure(figsize=(12, 6))
+
+# Визуализация входных сигналов
+for i, signal in enumerate(signals):
+    plt.plot(t, signal, label=f'Входной сигнал {frequencies[i]/1e3} кГц', alpha=0.5)
+
+# Визуализация выходного сигнала
+plt.plot(t, output_signal, label='Выходной сигнал (логический каскад)', color='red', linewidth=2)
+
+# Добавление горизонтальных линий для запрещенной зоны
+plt.axhline(y=2, color='green', linestyle='--', label='Нижняя граница (2 В)')
+plt.axhline(y=4, color='orange', linestyle='--', label='Верхняя граница (4 В)')
+
+# Настройка графика
+plt.title('Сигналы и выход логического каскада')
+plt.xlabel('Время (с)')
+plt.ylabel('Напряжение (В)')
+plt.grid()
+plt.legend()
+plt.xlim(0, duration)
+plt.ylim(-1, 6)
+
+# Показать график
+plt.show()
